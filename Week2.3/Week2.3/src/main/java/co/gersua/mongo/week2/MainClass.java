@@ -44,5 +44,12 @@ public class MainClass {
             Bson deleteFilter = Filters.and(Filters.eq("student_id", entry.getKey()), Filters.eq("score", entry.getValue()));
             grades.deleteOne(deleteFilter);
         }
+
+        // Alternative iteration using lambdas
+        /*
+        studentMap.entrySet().stream().map(entry ->
+             Filters.and(Filters.eq("student_id", entry.getKey()), Filters.eq("score", entry.getValue()))
+        ).forEach(deleteFilter -> grades.deleteOne(deleteFilter));
+         */
     }
 }
