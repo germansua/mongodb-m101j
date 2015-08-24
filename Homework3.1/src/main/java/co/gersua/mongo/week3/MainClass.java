@@ -13,6 +13,10 @@ public class MainClass {
         MongoDatabase school = mongoClient.getDatabase("school");
         MongoCollection<Document> students = school.getCollection("students");
 
+        for (Document student : students.find()) {
+
+        }
+
         System.out.println(students.count());
     }
 }
