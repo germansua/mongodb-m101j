@@ -3,13 +3,11 @@ package co.gersua.mongo.week3;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import static com.mongodb.client.model.Filters.*;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class MainClass {
@@ -20,11 +18,10 @@ public class MainClass {
         MongoDatabase school = mongoClient.getDatabase("school");
         MongoCollection<Document> students = school.getCollection("students");
 
-        Map<Integer, Double> studentMinHWScore = new HashMap<>();
-
         for (Document student : students.find()) {
             List<Document> scores = student.get("scores", List.class);
 
+            /* Lambda that finds the min value of HW */
             Optional<Document> min = scores.stream()
                     .filter(score -> score.get("type").equals("homework"))
                     .min((s1, s2) -> {
@@ -34,13 +31,10 @@ public class MainClass {
                         return score1.compareTo(score2);
                     });
 
-            studentMinHWScore.put(student.getInteger("_id"), min.get().getDouble("score"));
-
-            Bson deleteFilter = and(eq("_id", student.getInteger("_id")));
+            /* Update the array setting a new document without the min HW value*/
+            scores.remove(min.get());
+            Bson updateFilter = Filters.eq("_id", student.getInteger("_id"));
+            students.updateOne(updateFilter, new Document("$set", new Document("scores", scores)));
         }
-
-        studentMinHWScore.entrySet()
-                .stream().
-                forEach(entry -> System.out.println("Student=" + entry.getKey() + ", HW min score=" + entry.getValue()));
     }
 }
