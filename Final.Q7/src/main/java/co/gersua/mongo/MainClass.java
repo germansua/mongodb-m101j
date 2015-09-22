@@ -55,5 +55,21 @@ public class MainClass {
         }
 
         client.close();
+
+
+//        Q8
+//        MongoClient c =  new MongoClient();
+//        MongoDatabase db = c.getDatabase("test");
+//        MongoCollection<Document> animals = db.getCollection("animals");
+//
+//        Document animal = new Document("animal", "monkey");
+//
+//        animals.insertOne(animal);
+//        animal.remove("animal");
+//        animal.append("animal", "cat");
+//        animals.insertOne(animal);
+//        animal.remove("animal");
+//        animal.append("animal", "lion");
+//        animals.insertOne(animal);
     }
 }
