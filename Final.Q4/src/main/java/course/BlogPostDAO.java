@@ -17,10 +17,19 @@
 
 package course;
 
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCollection;
 
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.FindOptions;
+import com.mongodb.client.model.UpdateOptions;
+import org.bson.BsonDocument;
 import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -102,5 +111,26 @@ public class BlogPostDAO {
         // on the post identified by `permalink`.
         //
         //
+        Bson findFilter = Filters.eq("permalink", permalink);
+        FindIterable<Document> documents = postsCollection.find(findFilter);
+        MongoCursor<Document> iterator = documents.iterator();
+
+        if (iterator.hasNext()) {
+            Document document = iterator.next();
+            ObjectId id = document.getObjectId("_id");
+
+            List<Document> comments = (List<Document>) document.get("comments");
+            Document comment = comments.get(ordinal);
+
+            int numLikes;
+            if (!comment.containsKey("num_likes")) {
+                numLikes = 1;
+            } else {
+                numLikes = comment.get("num_likes", Integer.class) + 1;
+            }
+
+            Bson idFilter = Filters.eq("_id", id);
+            postsCollection.updateOne(idFilter, new Document("$set", new Document("comments." + ordinal + ".num_likes", numLikes)));
+        }
     }
 }
